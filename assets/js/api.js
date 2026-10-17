@@ -328,6 +328,20 @@ async function getUploadsViaRSS() {
   return out;
 }
 
+/* ============================================================
+   8. LAST FALLBACK: site ka apna static JSON  (same-origin, hamesha chalta hai)
+   Browser me youtube.com ka direct fetch CORS se block hota hai,
+   is liye videos ki list website ke andar hi rakhi hai.
+   ========================================================== */
+async function getStaticVideos() {
+  const res = await fetch("assets/data/videos.json", { cache: "no-cache" });
+  if (!res.ok) throw new YouTubeError("Video list load nahi hui.", "STATIC");
+  const data = await res.json();
+  const list = (data && data.videos) || [];
+  if (!list.length) throw new YouTubeError("Video list khaali hai.", "STATIC");
+  return list;
+}
+
 /* ---------- localStorage cache ---------- */
 const Cache = {
   get(key) {
@@ -355,6 +369,6 @@ const Cache = {
 window.YT = {
   YouTubeError, hasApiKey, getApiKey, saveApiKey, clearApiKey,
   getChannelInfo, getUploadItems, getVideoDetails,
-  getChannelPlaylists, getRelated, searchChannel, getUploadsViaRSS, Cache,
+  getChannelPlaylists, getRelated, searchChannel, getUploadsViaRSS, getStaticVideos, Cache,
   fmtDuration, fmtViews, fmtDate, timeAgo, pickThumb,
 };

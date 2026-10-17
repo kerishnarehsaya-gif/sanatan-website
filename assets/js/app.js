@@ -247,7 +247,11 @@ async function loadVideos(firstRun = false) {
     if (S.viaRss || !YT.hasApiKey()) {
       // ── Fallback: RSS feed (bina API key) ──
       if (firstRun && !S.videos.length) {
-        S.videos = await YT.getUploadsViaRSS();
+        try {
+          S.videos = await YT.getUploadsViaRSS();
+        } catch (rssErr) {
+          S.videos = await YT.getStaticVideos();
+        }
       }
       S.exhausted = true;
     } else {
